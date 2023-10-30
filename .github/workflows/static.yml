@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "$GITHUB_CONTEXT"
       - name: Dump env
-        run: echo env
+        run: env
       - name: Shorten Link
         id: shorten-link
         run: |
