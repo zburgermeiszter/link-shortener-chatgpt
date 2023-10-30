@@ -36,6 +36,32 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github.event) }}
         run: |
           echo "$GITHUB_CONTEXT"
+      - name: Shorten Link
+        id: shorten-link
+        run: |
+          ISSUE_ID=$(echo ${{ github.event.issue.number }} | awk '{printf "%s", $0}')
+          SHORT_URL=$(echo "http://example.com/$(echo "obase=62;ibase=10;${ISSUE_ID}" | bc)")
+          BASE_ENCODED=$(echo "obase=62;ibase=10;${ISSUE_ID}" | bc)
+      
+          # Custom function to convert base
+          function base62 {
+              local b="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+              echo -n ${b:${1}%62:1}
+          }
+          
+          BASE62_ENCODED=""
+          while [ $BASE_ENCODED -gt 0 ]; do
+              BASE62_ENCODED=$(base62 $((BASE_ENCODED%62)))${BASE62_ENCODED}
+              BASE_ENCODED=$((BASE_ENCODED/62))
+          done
+      
+          echo "::set-output name=short_url::$SHORT_URL"
+          echo "::set-output name=base_encoded::$BASE62_ENCODED"
+        
+      - name: Create Redirect Page
+        run: |
+          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ steps.shorten-link.outputs.base_encoded }}.html
+  
     
   deploy:
     needs: build
