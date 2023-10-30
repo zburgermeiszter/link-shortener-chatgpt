@@ -41,17 +41,23 @@ jobs:
       - name: Shorten Link
         id: shorten-link
         run: |
-          ISSUE_ID=$(echo ${{ github.event.issue.number }} | awk '{printf "%s", $0}')
-          BASE_ENCODED=$(echo "obase=62;ibase=10;${ISSUE_ID}" | bc)
+          ISSUE_ID=${{ github.event.issue.number }}
+          
+          # Define base62 characters
+          BASE62="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
           BASE62_ENCODED=""
-          while [ $BASE_ENCODED -gt 0 ]; do
-              BASE62_ENCODED=$(echo ${BASE_ENCODED}%62)${BASE62_ENCODED}
-              BASE_ENCODED=$((BASE_ENCODED/62))
+          
+          while [ $ISSUE_ID -gt 0 ]; do
+              INDEX=$(($ISSUE_ID % 62))
+              BASE62_ENCODED="${BASE62:${INDEX}:1}${BASE62_ENCODED}"
+              ISSUE_ID=$(($ISSUE_ID / 62))
           done
+          
           SHORT_URL="http://example.com/${BASE62_ENCODED}"
       
           echo "short_url=${SHORT_URL}" >> $GITHUB_ENV
-            
+      
+
           - name: Create Redirect Page
           run: |
             echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ env.base_encoded }}.html
