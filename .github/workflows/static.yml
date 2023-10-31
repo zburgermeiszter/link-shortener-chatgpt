@@ -70,7 +70,7 @@ jobs:
       - name: Create Redirect Page
         run: |
           mkdir -p dist
-          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > dist/${{ steps.get-link-id.outputs.result }}
+          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > dist/${{ steps.get-link-id.outputs.result }}.html
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
@@ -123,5 +123,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `The short URL is live! You can now access your link at [${shortUrl}](${shortUrl}).`
+              body: `The short URL is live! You can now access your link at ${shortUrl} .`
             });
