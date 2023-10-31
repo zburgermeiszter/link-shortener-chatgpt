@@ -38,30 +38,24 @@ jobs:
           echo "$GITHUB_CONTEXT"
       - name: Dump env
         run: env
+
       - name: Shorten Link
         id: shorten-link
-        run: |
-          ISSUE_ID=${{ github.event.issue.number }}
-          
-          # Define base62 characters
-          BASE62="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-          BASE62_ENCODED=""
-          
-          while [ $ISSUE_ID -gt 0 ]; do
-              INDEX=$(($ISSUE_ID % 62))
-              BASE62_ENCODED="${BASE62:${INDEX}:1}${BASE62_ENCODED}"
-              ISSUE_ID=$(($ISSUE_ID / 62))
-          done
-          
-          SHORT_URL="http://example.com/${BASE62_ENCODED}"
-      
-          echo "short_url=${SHORT_URL}" >> $GITHUB_ENV
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            core.setOutput('link_id', issueNumber.toString(62));
 
       - name: Create Redirect Page
         run: |
-          mkdir -p dist
-          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > dist/${{ env.base_encoded }}.html
-      
+          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ steps.shorten-link.outputs.link_id }}.html
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
+        with:
+          branch: gh-pages
+          folder: docs
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
@@ -97,3 +91,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment Confirmation
+        uses: actions/github-script@v5
+
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const shortUrl = `${context.payload.repository.html_url}/docs/${context.needs.build.outputs.link_id')}.html';
+
+            github.issues.createComment({
+              issue_number: issueNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `The short URL is live! You can now access your link at [${shortUrl}](${shortUrl}).`
+            });
