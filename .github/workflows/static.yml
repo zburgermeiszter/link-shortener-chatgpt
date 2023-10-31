@@ -118,7 +118,7 @@ jobs:
           script: |
             const shortUrl = `${ context.payload.repository.html_url }/${{ needs.build.outputs.link-id }}`;
 
-            github.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
