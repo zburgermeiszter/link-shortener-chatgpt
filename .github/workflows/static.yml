@@ -33,6 +33,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      link-id: ${{ steps.get-link-id.outputs.result }}
     steps:
       # - name: Checkout
       #   uses: actions/checkout@v3
@@ -112,7 +114,7 @@ jobs:
 
         with:
           script: |
-            const shortUrl = `${context.payload.repository.html_url}/docs/${context.needs.build.outputs.result}.html`;
+            const shortUrl = `${ context.payload.repository.html_url }/${ context.needs.build.outputs.link-id }.html`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
