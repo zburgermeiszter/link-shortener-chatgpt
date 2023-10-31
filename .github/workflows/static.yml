@@ -40,16 +40,27 @@ jobs:
         run: env
 
       - name: Shorten Link
-        id: shorten-link
-        uses: actions/github-script@v5
+        id: get-link-id
+        uses: actions/github-script@v6
         with:
           script: |
-            const issueNumber = context.payload.issue.number;
-            core.setOutput('link_id', issueNumber.toString(62));
+            function decimalToBase58(decimal) {
+              const BASE58_CHARS = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+              let base58Encoded = '';
+          
+              while (decimal > 0) {
+                  const remainder = decimal % 58;
+                  base58Encoded = BASE58_CHARS[remainder] + base58Encoded;
+                  decimal = Math.floor(decimal / 58);
+              }
+          
+              return base58Encoded;
+            }
+            return decimalToBase58(github.event.issue.number);
 
       - name: Create Redirect Page
         run: |
-          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ steps.shorten-link.outputs.link_id }}.html
+          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ steps.get-link-id.outputs.result }}.html
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
@@ -97,12 +108,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comment Confirmation
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
 
         with:
           script: |
             const issueNumber = context.payload.issue.number;
-            const shortUrl = `${context.payload.repository.html_url}/docs/${context.needs.build.outputs.link_id')}.html';
+            const shortUrl = `${context.payload.repository.html_url}/docs/${context.needs.build.outputs.result}.html`;
 
             github.issues.createComment({
               issue_number: issueNumber,
