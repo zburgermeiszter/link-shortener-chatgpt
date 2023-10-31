@@ -116,7 +116,7 @@ jobs:
 
         with:
           script: |
-            const shortUrl = `${ context.payload.repository.html_url }/${ context.needs.build.outputs.link-id }.html`;
+            const shortUrl = `${ context.payload.repository.html_url }/${{ needs.build.outputs.link-id }}`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
