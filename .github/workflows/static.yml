@@ -59,6 +59,7 @@ jobs:
 
       - name: Create Redirect Page
         run: |
+          mkdir -p docs
           echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ env.base_encoded }}.html
         
   
