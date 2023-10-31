@@ -56,11 +56,10 @@ jobs:
           SHORT_URL="http://example.com/${BASE62_ENCODED}"
       
           echo "short_url=${SHORT_URL}" >> $GITHUB_ENV
-      
 
-          - name: Create Redirect Page
-          run: |
-            echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ env.base_encoded }}.html
+      - name: Create Redirect Page
+        run: |
+          echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ env.base_encoded }}.html
         
   
     
