@@ -64,7 +64,7 @@ jobs:
           
               return base58Encoded;
             }
-            return decimalToBase58(context.payload.inputs.issueNumber || context.payload.issue.number);
+            return decimalToBase58(context.payload?.inputs?.issueNumber || context.payload.issue.number);
 
       - name: Create Redirect Page
         run: |
