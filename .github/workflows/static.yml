@@ -106,7 +106,9 @@ jobs:
         uses: actions/deploy-pages@v2
 
   notify:
-    needs: deploy
+    needs: 
+      - deploy
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: Comment Confirmation
