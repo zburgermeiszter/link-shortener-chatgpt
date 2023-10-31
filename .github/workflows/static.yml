@@ -47,8 +47,8 @@ jobs:
       - name: Shorten Link
         id: get-link-id
         uses: actions/github-script@v6
-        result-encoding: string
         with:
+          result-encoding: string
           script: |
             function decimalToBase58(decimal) {
               const BASE58_CHARS = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
