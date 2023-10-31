@@ -12,6 +12,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      issueNumber:
+        description : Issue number
+        required: true
+        
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -56,17 +61,11 @@ jobs:
           
               return base58Encoded;
             }
-            return decimalToBase58(github.event.issue.number);
+            return decimalToBase58(context.payload.inputs.issueNumber || context.payload.issue.number);
 
       - name: Create Redirect Page
         run: |
           echo "<html><head><meta http-equiv=\"refresh\" content=\"0;url='${{ github.event.issue.title }}'\"></head><body>Redirecting...</body></html>" > docs/${{ steps.get-link-id.outputs.result }}.html
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
-        with:
-          branch: gh-pages
-          folder: docs
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
@@ -74,7 +73,6 @@ jobs:
           name: dist
           path: |
             dist
-        
   
     
   deploy:
@@ -112,11 +110,10 @@ jobs:
 
         with:
           script: |
-            const issueNumber = context.payload.issue.number;
             const shortUrl = `${context.payload.repository.html_url}/docs/${context.needs.build.outputs.result}.html`;
 
             github.issues.createComment({
-              issue_number: issueNumber,
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `The short URL is live! You can now access your link at [${shortUrl}](${shortUrl}).`
