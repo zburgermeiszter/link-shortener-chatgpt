@@ -119,8 +119,7 @@ jobs:
 
         with:
           script: |
-            # const shortUrl = `${ context.payload.repository.html_url }/${{ needs.build.outputs.link-id }}`;
-            const shortUrl = `${{ needs.deploy.outputs.page_url }}`;
+            const shortUrl = `${{ needs.deploy.outputs.page_url }}/${{ needs.build.outputs.link-id }}`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
