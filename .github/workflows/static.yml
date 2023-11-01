@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       issueNumber:
-        description : Issue number
+        description: Issue number
         required: true
         
 
@@ -86,6 +86,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       # - name: Checkout
       #   uses: actions/checkout@v3
@@ -117,7 +119,8 @@ jobs:
 
         with:
           script: |
-            const shortUrl = `${ context.payload.repository.html_url }/${{ needs.build.outputs.link-id }}`;
+            # const shortUrl = `${ context.payload.repository.html_url }/${{ needs.build.outputs.link-id }}`;
+            const shortUrl = `${{ needs.deploy.outputs.page_url }}`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
